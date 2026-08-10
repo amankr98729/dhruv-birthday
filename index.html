@@ -28,14 +28,16 @@
     }
     h1 { margin: 0; font-size: clamp(2.4rem, 8vw, 5rem); }
     .cake { font-size: clamp(5rem, 16vw, 9rem); margin: 18px 0 6px; animation: bounce 1.4s infinite; }
-    .dog-photo {
-      width: min(250px, 72vw);
-      height: 165px;
-      display: block;
-      margin: 20px auto 4px;
+    .baby-photo {
+      width: min(180px, 52vw);
+      height: 180px;
+      display: grid;
+      place-items: center;
+      margin: 18px auto 4px;
       border: 4px solid rgba(255,255,255,.85);
-      border-radius: 20px;
-      object-fit: cover;
+      border-radius: 50%;
+      font-size: 7rem;
+      background: linear-gradient(145deg, #fff5d7, #ffc5df);
       box-shadow: 0 8px 20px rgba(35, 0, 65, .28);
     }
     .birthday-friends {
@@ -56,7 +58,7 @@
       background: #fff;
       box-shadow: 0 6px 16px rgba(35, 0, 65, .2);
     }
-    .dog-name {
+    .baby-name {
       display: inline-block;
       padding: 7px 16px;
       margin-bottom: 4px;
@@ -65,6 +67,7 @@
       font-weight: bold;
       background: #fff;
     }
+    .sound-note { min-height: 1.2em; margin: 14px 0 0; font-size: .92rem; opacity: .9; }
     p { font-size: clamp(1.05rem, 2.8vw, 1.4rem); line-height: 1.6; }
     button {
       border: 0;
@@ -89,12 +92,13 @@
     <div class="cake">&#127874;</div>
     <div class="birthday-friends">
       <div class="aman" aria-label="Aman">&#128102;</div>
-      <div class="speech-bubble">Happy Birthday, Dhruv!<br>You are the best birthday dog! &#128062;<br>&mdash; Aman</div>
+      <div class="speech-bubble">Happy Birthday, baby Dhruv!<br>You make every day brighter! &#10024;<br>&mdash; Aman</div>
     </div>
-    <div class="dog-name">Dhruv the Birthday Dog &#128054;</div>
-    <img class="dog-photo" src="https://images.unsplash.com/photo-1558788353-f76d92427f16?auto=format&fit=crop&w=700&q=85" alt="Dhruv, the happy birthday dog" />
-    <p>Wishing you a year full of big wins, great memories, and plenty of cake!</p>
+    <div class="baby-name">Baby Dhruv &#128118;</div>
+    <div class="baby-photo" role="img" aria-label="Baby Dhruv">&#128118;</div>
+    <p>Wishing our sweet baby Dhruv a year full of giggles, love, and lots of cake!</p>
     <button onclick="celebrate()">Click for a surprise &#10024;</button>
+    <p class="sound-note" id="sound-note">Birthday wishes are starting...</p>
   </main>
 
   <script>
@@ -113,13 +117,26 @@
       }
     }
 
+    let birthdayStarted = false;
+
+    function pickSweetVoice() {
+      const voices = window.speechSynthesis.getVoices();
+      const girlVoice = voices.find(voice =>
+        /female|woman|girl|zira|samantha|aria|jenny|linda|susan|heera|swara/i.test(voice.name)
+      );
+      return girlVoice || voices.find(voice => /en/i.test(voice.lang)) || voices[0];
+    }
+
     function playBirthdaySong() {
+      if (birthdayStarted) return;
+      birthdayStarted = true;
       window.speechSynthesis.cancel();
       const lyrics = new SpeechSynthesisUtterance(
-        'Hi Dhruv the birthday dog! This is Aman wishing you a very happy birthday! May your treats be huge, your toys be awesome, and your age remain a highly classified secret! Hip hip hooray!'
+        'Happy birthday, sweet baby Dhruv! Aman is sending you the biggest hugs, the happiest giggles, and a day full of love. You are very special!'
       );
-      lyrics.rate = 1.15;
-      lyrics.pitch = 1.55;
+      lyrics.voice = pickSweetVoice();
+      lyrics.rate = .9;
+      lyrics.pitch = 1.35;
       lyrics.volume = 1;
       window.speechSynthesis.speak(lyrics);
 
@@ -142,11 +159,18 @@
         time += length;
       });
       celebrate();
+      document.getElementById('sound-note').textContent = 'Sweet birthday wishes for baby Dhruv \u2661';
     }
 
     window.addEventListener('load', () => {
+      window.speechSynthesis.onvoiceschanged = pickSweetVoice;
       setTimeout(playBirthdaySong, 450);
     });
+
+    // Mobile browsers require a tap before they allow sound. There is no extra play button.
+    document.addEventListener('pointerdown', () => {
+      if (!birthdayStarted) playBirthdaySong();
+    }, { once: true });
   </script>
 </body>
 </html>
